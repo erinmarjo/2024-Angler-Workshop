@@ -1,0 +1,29 @@
+---
+title: "Angler Workshop 2024"
+author: "Erin Johnston"
+date: "2024-04-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+```{r libraries}
+
+library(tidyverse)
+library(here)
+
+
+```
+
+```{r data}
+
+
+
+```
+
