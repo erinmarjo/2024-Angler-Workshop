@@ -1,0 +1,297 @@
+---
+title: "TL vs FL"
+author: "Erin Johnston"
+date: "2024-04-13"
+output: html_document
+---
+
+This script is to run code for total vs fork length taken in mm during the 2023 season.
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+```
+
+```{r libraries}
+
+library(tidyverse)
+library(here)
+
+```
+
+```{r data}
+
+raw <- read_csv(here("Data", "2024_CP_Angler_Meeting_2023_SW.csv"))
+
+SW23 <- raw %>%
+  filter(year == 2023) %>%
+  drop_na(FL_mm, TL_mm) ## 6380 fish with both TL and FL measurements
+
+dat_n <- SW23 %>% count(species) %>% arrange(desc(n))
+
+BLA <- SW23 %>%
+  filter(species == "BLA")
+
+BLU <- SW23 %>%
+  filter(species == "BLU")
+
+CNY <- SW23 %>%
+  filter(species == "CNY")
+
+CPR <- SW23 %>%
+  filter(species == "CPR")
+
+DEA <- SW23 %>%
+  filter(species == "DEA")
+
+OLV <- SW23 %>%
+  filter(species == "OLV")
+
+VER <- SW23 %>%
+  filter(species == "VER")
+
+YTL <- SW23 %>%
+  filter(species == "YTL")
+
+QBK <- SW23 %>%
+  filter(species == "QBK")
+
+```
+
+Black RF - 225
+Blue RF - 2068
+Canary RF - 113
+Copper RF - 102
+Deacon RF - 297
+Olive RF - 295
+Vermilion RF - 264
+Yellowtail RF - 97
+Quillback RF - 31
+
+```{r function for adding line}
+
+lm_eqn <- function(df){
+    m <- lm(TL_mm ~ FL_mm, df);
+    eq <- substitute(italic(TL) == b%.%italic(FL) + a*","~~italic(r)^2~"="~r2*, 
+         list(a = format(unname(coef(m)[1]), digits = 2),
+              b = format(unname(coef(m)[2]), digits = 2),
+             r2 = format(summary(m)$r.squared, digits = 3)))
+    as.character(as.expression(eq));
+}
+
+num_ind <- function(df){
+  test <- df %>% count()
+  num <- test$n
+  num_eq <- paste0("n = ", num)
+  as.character(as.expression(num_eq))
+}
+```
+
+
+### Black Rockfish
+
+```{r}
+
+mod_BLA <- lm(TL_mm ~ FL_mm, data = BLA)
+summary(mod_BLA)
+sigma(mod_BLA)
+
+BLA_lm_plot <- ggplot(data = BLA, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Black Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+
+BLA_lm_plot_eq <- BLA_lm_plot + geom_text(x = 200, y = 400, label = lm_eqn(BLA), parse = TRUE, size = 7)+ geom_text(x = 200, y = 300, label = num_ind(BLA), size = 7)
+
+```
+### Blue Rockfish
+
+```{r}
+
+mod_BLU <- lm(TL_mm ~ FL_mm, data = BLU)
+summary(mod_BLU)
+sigma(mod_BLU)
+
+BLU_lm_plot <- ggplot(data = BLU, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Blue Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+BLU_lm_plot_eq <- BLU_lm_plot + geom_text(x = 174, y = 400, label = lm_eqn(BLU), parse = TRUE, size = 7)+ geom_text(x = 175, y = 300, label = num_ind(BLU), size = 7)
+
+
+```
+
+### Canary Rockfish
+
+```{r}
+
+mod_CNY <- lm(TL_mm ~ FL_mm, data = CNY)
+summary(mod_CNY)
+sigma(mod_CNY)
+
+CNY_lm_plot <- ggplot(data = CNY, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Canary Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+CNY_lm_plot_eq <- CNY_lm_plot + geom_text(x = 275, y = 400, label = lm_eqn(CNY), parse = TRUE)
+
+
+```
+
+### Copper Rockfish
+
+```{r}
+
+mod_CPR <- lm(TL_mm ~ FL_mm, data = CPR)
+summary(mod_CPR)
+sigma(mod_CPR)
+
+CPR_lm_plot <- ggplot(data = CPR, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Copper Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+CPR_lm_plot_eq <- CPR_lm_plot + geom_text(x = 325, y = 450, label = lm_eqn(CPR), parse = TRUE)
+
+
+```
+
+### Deacon Rockfish
+
+```{r}
+
+mod_DEA <- lm(TL_mm ~ FL_mm, data = DEA)
+summary(mod_DEA)
+sigma(mod_DEA)
+
+DEA_lm_plot <- ggplot(data = DEA, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Deacon Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+DEA_lm_plot_eq <- DEA_lm_plot + geom_text(x = 200, y = 400, label = lm_eqn(DEA), parse = TRUE)
+
+
+```
+
+### Olive Rockfish
+
+```{r}
+
+mod_OLV <- lm(TL_mm ~ FL_mm, data = OLV)
+summary(mod_OLV)
+sigma(mod_OLV)
+
+OLV_lm_plot <- ggplot(data = OLV, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Olive Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+OLV_lm_plot_eq <- OLV_lm_plot + geom_text(x = 230, y = 400, label = lm_eqn(OLV), parse = TRUE)
+
+
+```
+
+### Vermilion Rockfish
+
+```{r}
+
+mod_VER <- lm(TL_mm ~ FL_mm, data = VER)
+summary(mod_VER)
+sigma(mod_VER)
+
+VER_lm_plot <- ggplot(data = VER, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Vermilion Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+VER_lm_plot_eq <- VER_lm_plot + geom_text(x = 200, y = 400, label = lm_eqn(VER), parse = TRUE)
+
+
+```
+
+### Yellowtail Rockfish
+
+```{r}
+
+mod_YTL <- lm(TL_mm ~ FL_mm, data = YTL)
+summary(mod_YTL)
+sigma(mod_YTL)
+
+YTL_lm_plot <- ggplot(data = YTL, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Yellowtail Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+YTL_lm_plot_eq <- YTL_lm_plot + geom_text(x = 200, y = 400, label = lm_eqn(YTL), parse = TRUE)
+
+
+```
+
+### Quillback Rockfish
+
+```{r}
+
+mod_QBK <- lm(TL_mm ~ FL_mm, data = QBK)
+summary(mod_QBK)
+sigma(mod_QBK)
+
+QBK_lm_plot <- ggplot(data = QBK, aes(x = FL_mm, y = TL_mm))+
+  geom_point()+
+  geom_smooth()+
+  labs(x = "Fork Length (mm)", y = "Total Length (mm)\n", title = "Quillback Rockfish")+
+  theme_bw()+
+  theme(panel.grid = element_blank())
+
+QBK_lm_plot_eq <- QBK_lm_plot + geom_text(x = 200, y = 400, label = lm_eqn(QBK), parse = TRUE)
+
+
+```
+
+Black RF - 225
+Blue RF - 2068
+Canary RF - 113
+Copper RF - 102
+Deacon RF - 297
+Olive RF - 295
+Vermilion RF - 264
+Yellowtail RF - 97
+Quillback RF - 31
+```{r saving plots}
+
+
+ggsave("BLA_lm_plot_eq.png", plot = BLA_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("BLU_lm_plot_eq.png", plot = BLU_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("CNY_lm_plot_eq.png", plot = CNY_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("CPR_lm_plot_eq.png", plot = CPR_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("DEA_lm_plot_eq.png", plot = DEA_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("OLV_lm_plot_eq.png", plot = OLV_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("VER_lm_plot_eq.png", plot = VER_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("YTL_lm_plot_eq.png", plot = YTL_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+ggsave("QBK_lm_plot_eq.png", plot = QBK_lm_plot_eq, path = here("Figures"), dpi = 800, height = 5, width = 7)
+
+```
+

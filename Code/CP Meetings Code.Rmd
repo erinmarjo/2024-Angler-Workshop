@@ -1,0 +1,264 @@
+---
+title: "CP Meetings Code"
+author: "Erin Johnston"
+date: "2024-04-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE,
+                      message = TRUE,
+                      warning = TRUE)
+
+```
+
+```{r libraries}
+
+library(tidyverse)
+library(here)
+
+
+```
+
+```{r data}
+
+raw <- read_csv(here("Data", "2024_CP_Angler_Meeting_2023_Cal_Poly.csv"))
+
+CP23 <- raw %>%
+  filter(group =="Cal Poly", year == 2023) 
+
+top10 <- CP23 %>% count(species) %>% arrange(desc(n))
+## top 10 species are GPR, BLU, OLV, VER, KLP, CPR, LCD, YTL, RSY, TRE
+
+top10_list <- c("GPR", "BLU", "OLV", "VER", "KLP", "CPR", "LCD", "YTL", "RSY", "TRE")
+
+catch_pie_chart <- CP23 %>%
+  select(species, area, site) %>%
+  filter(species %in% top10_list) %>%
+  group_by(species, area, site) %>%
+  count()
+
+
+
+```
+Blue "#36648B"
+Copper "#CD6839"
+Gopher  "#FFDAB9"
+Kelp "#9FB6CD"
+Lingcod"#00FFFF"
+Olive "#6E8B3D"
+Rosy "#FFB6C1"
+Vermilion"#8B3626"
+Tree "#008B45"
+Yellowtail "#FFEC8B"
+
+```{r pie chart}
+
+## BL MPA
+
+bl_mpa_pie <- catch_pie_chart %>%
+  filter(area == "BL", site == "MPA", n > 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9", "#9FB6CD",  "#00FFFF", "#6E8B3D", "#8B3626" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+#ggsave("just_legend_whitebg.png", plot = bl_mpa_pie, path = here("Figures"), dpi = 800, height = 5, width = 5)
+
+## BL REF
+
+bl_ref_pie <- catch_pie_chart %>%
+  filter(area == "BL", site == "REF", n > 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9", "#9FB6CD", "#00FFFF", "#6E8B3D", "#8B3626" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+## PB MPA
+
+pb_mpa_pie <- catch_pie_chart %>%
+  filter(area == "PB", site == "MPA", n > 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9","#9FB6CD", "#00FFFF", "#6E8B3D", "#FFB6C1", "#8B3626", "#FFEC8B" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+## BL MPA
+
+pb_ref_pie <- catch_pie_chart %>%
+  filter(area == "PB", site == "REF", n > 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#FFDAB9", "#00FFFF", "#6E8B3D" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+  
+
+catch_pie_chart %>%
+  filter(area == "PB", site == "MPA") %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#FFDAB9", "#00FFFF", "#6E8B3D" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()
+
+
+ggsave("bl_mpa_pie.png", plot = bl_mpa_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+ggsave("bl_ref_pie.png", plot = bl_ref_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+ggsave("pb_mpa_pie.png", plot = pb_mpa_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+ggsave("pb_ref_pie.png", plot = pb_ref_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+
+```
+
+
+```{r}
+
+BAR <- raw %>%
+  filter(gear == "BAR") %>%
+  count(group)
+
+SIO <- raw %>%
+  filter(group == "SIO") %>%
+  count(gear)
+
+UCSB <- raw %>%
+  filter(group == "UCSB") %>%
+  count(gear)
+
+CP <- raw %>%
+  filter(group == "Cal Poly") %>%
+  count(gear)
+
+MLML <- raw %>%
+  filter(group == "MLML") %>%
+  count(gear)
+
+BML <- raw %>%
+  filter(group == "BML") %>%
+  count(gear)
+
+HSU <- raw %>%
+  filter(group == "HSU") %>%
+  count(gear)
+
+```
+
+## Catch Pie Chart by Gear Type
+
+```{r gear type data}
+
+catch_gear <- CP23 %>%
+  select(species, gear) %>%
+  filter(species %in% top10_list) %>%
+  group_by(species, gear) %>%
+  count()
+
+
+```
+
+```{r gear type pie chart}
+
+## bar
+bar_pie <- catch_gear %>%
+  filter(gear == "BAR", n > 10) %>% ## no rosy, no tree
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9", "#9FB6CD",  "#00FFFF", "#6E8B3D", "#8B3626", "#FFEC8B"))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+fly_pie <- catch_gear %>%
+  filter(gear == "FLY", n >= 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9", "#9FB6CD",  "#00FFFF", "#6E8B3D", "#FFB6C1", "#8B3626" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+bat_pie <- catch_gear %>%
+  filter(gear == "BAT", n > 10) %>%
+  ggplot(aes(x = "", y = n, fill = species))+
+  scale_fill_manual(name = "Species", values = c("#36648B", "#CD6839", "#FFDAB9", "#9FB6CD", "#6E8B3D","#FFB6C1", "#008B45","#8B3626","#FFEC8B" ))+
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void()+
+  theme(legend.position = "none")
+
+ggsave("bar_pie.png", plot = bar_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+ggsave("fly_pie.png", plot = fly_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+ggsave("bat_pie.png", plot = bat_pie, path = here("Figures"), dpi = 800, height = 5, width = 5, bg = "transparent")
+
+```
+
+```{r gear numbers}
+
+num_gear <- CP23 %>%
+  select(species, gear) %>%
+  group_by(species, gear) %>%
+  count() %>%
+  group_by(gear)%>%
+  summarise(gear_num = sum(n))
+
+spp_caught <- CP23 %>%
+  select(species, gear) %>%
+  group_by(species, gear) %>%
+  count() %>%
+  select(species, gear) %>%
+  group_by(gear) %>%
+  count()
+
+```
+
+
+```{r cpue questions}
+
+raw_cpue <- raw %>%
+  mutate(drift_hrs = angler_hours/total_anglers)
+
+## fish caught per angler hour
+low23 <- raw_cpue %>%
+  filter(group == "Cal Poly", year == 2023) %>%
+  group_by(trip, angler, drift_hrs) %>%
+  count() %>%
+  group_by(angler) %>%
+  summarise(tot_effort = sum(drift_hrs),
+            tot_catch = sum(n)) %>%
+  mutate(cpue = tot_catch/tot_effort)
+
+## fish caught per day fished
+
+low23_b <- raw_cpue %>%
+  filter(group == "Cal Poly", year == 2023) %>%
+  group_by(trip, angler) %>%
+  count() %>%
+  group_by(angler) %>%
+  summarise(num_trips = length(unique(trip)),
+            tot_catch = sum(n)) %>%
+  mutate(cpue = tot_catch/num_trips)
+
+
+## highest and lowest cpue all time
+
+cpue_alltime <- raw_cpue %>%
+  filter(group == "Cal Poly") %>%
+  select(angler, drift_hrs) %>%
+  drop_na()%>%
+  group_by(angler, drift_hrs) %>%
+  count() %>%
+  group_by(angler) %>%
+  summarise(tot_effort = sum(drift_hrs),
+            tot_catch = sum(n)) %>%
+  mutate(cpue = tot_catch/tot_effort)
+
+```
+
